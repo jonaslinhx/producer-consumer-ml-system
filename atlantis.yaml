@@ -1,0 +1,40 @@
+version: 3
+projects:
+  - name: default_provision
+    branch: /prod/
+    dir: ./default_provision
+    
+  - name: workspace_provision
+    branch: /prod/
+    dir: ./workspace_provision
+    workspace: prod
+    workflow: use_workspace_tfvars
+
+  - name: workspace_provision
+    branch: /qa/
+    dir: ./workspace_provision
+    workspace: qa
+    workflow: use_workspace_tfvars
+
+  - name: workspace_provision
+    branch: /stg/
+    dir: ./workspace_provision
+    workspace: stg
+    workflow: use_workspace_tfvars
+
+workflows:
+  use_workspace_tfvars:
+    plan:
+      steps:
+        - env:
+            name: CUSTOM_WORKSPACE
+            command: echo $BASE_BRANCH_NAME
+        - init
+        - plan:
+            extra_args: ["-var-file", "tfvars/$CUSTOM_WORKSPACE.tfvars", "-lock=false"]
+    apply:
+      steps:
+        - env:
+            name: CUSTOM_WORKSPACE
+            command: echo $BASE_BRANCH_NAME
+        - apply
